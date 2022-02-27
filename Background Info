@@ -1,0 +1,165 @@
+ ~ Overview ~
+Computers are excellent at reading and processing input data that can be compiled into useful analysis or information.
+They are so good at doing so, in fact, that we utilise computers to create virtual scenarios using numerous factors and parameters,
+allowing us to view the results in a considerably quick time, or sometimes even in real-time.
+These scenarios are what we usually refer to as computer simulations.
+
+Running computer simulations enables us to answer certain questions that would not be possible to answer if we were to think,
+visualise, and formulate in our small human minds. For example, to accurately predict the daily forecast, meteorologists
+have to consider the status of the atmosphere, the humidity level, the rate of temperature change in an area,
+the cloud movement or wind direction around the local area, and many other factors.
+These factors can be too overwhelming for a normal person to keep track of, especially so when used to predict the weather.
+Instead, meteorologists have used computers (or supercomputers) to run physics simulations that can calculate fluid dynamics
+and other factors as a whole to more accurately conclude what the weather will be every day.
+Simulations benefit us in the field of meteorology, but also in the fields of biology, psychology, economics, sociology, and many others.
+
+In order for us to explore the importance of simulations, what we can infer from the outcomes,
+and what strategies or algorithms we can deploy based on the outcome of a simulation, we will need a simple and
+interesting problem to simulate (and, of course, a problem that is still computationally feasible for us to solve).
+In this project, we will focus on making a simulation of a game that allows us to instantly predict what the outcomes are.
+After that, we will explore how we can implement certain optimization algorithms to tell us how to consistently improve our chances of winning the game.
+
+Fun fact
+The game that we’ll be simulating is actually heavily inspired by this online game.
+You are free to try and play the original but it is not mandatory to do in order to complete this project,
+as we’ll be focusing on a simplified version called Super Auto Canines.
+
+
+        %%% Project 1 - Simulate Battle (Part 1) %%%
+
+
+Write a function sim_battle(lpack, rpack) that simulates the battle between lpack and rpack and returns the outcome of the battle. The rules and the mechanics of the battle are exactly the same as described on the previous slide.
+
+The return value of this function should be in a form of a 2-tuple:
+
+A single-character string: "L" if lpack won, "R" if rpack won, or "T" if tied
+A list of the remaining dogs from the winning pack after the end of the battle. If the battle ended in a tie, then an empty list ([]) is used instead.
+For example, let’s consider this function call: sim_battle([("normal", 6, 5), ("normal", 3, 4)], [("normal", 2, 2), ("normal", 3, 9)]).
+
+The first duel that would occur will be between ("normal", 6, 5) and ("normal", 2, 2) as they are current pack leaders
+from lpack and rpack respectively. After a single attack, the left pack leader takes 2 damage, leaving 3 HP left,
+while the right pack leader takes 6 damage which would instantly bring its HP to -4. Thus, the right pack leader is knocked out which brings the end of the first duel.
+
+The second duel now will be between ("normal", 6, 3) and ("normal", 3, 9). Notice the health of the left pack leader has
+now been decreased to 3 due to the previous duel. This time the left pack leader is knocked out because the right pack leader’s DP is enough to deal the final blow,
+down to exactly 0 HP (and at the same time, the right pack leader has taken 6 damage, leaving 3 HP remaining).
+
+Up next, we have ("normal", 3, 4) against ("normal", 3, 3). The winner of the duel will be the left leader pack with 1 HP left.
+With no more dogs to duel from the right pack, the left pack is declared the winner of the battle, and the function would need to return (‘L’, [("normal", 3, 1)])
+
+You may assume lpack and rpack inputs are always valid, i.e. always lists of zero to five (inclusive) 3-tuple dogs.
+Your function will be tested using varying stats (HP and DP) values for each dog, so ensure that the function works properly with any given set of dogs.
+For this question, all breeds will be labelled "normal" i.e. no special battle effects.
+You may also assume that all lists and tuple inputs are well-formatted and valid according to the specification.
+
+
+
+
+        %%% Project 1 - Simulate Enhanced Battle (Part 2) %%%
+
+
+In this question, we will be following the same battle mechanics as found in the previous question, but with several twists!
+This is where the fun begins, as each dog will have a breed other than "normal".
+Each breed will correspond to a certain power that can enhance the dog themself or other dogs throughout the battle, under certain conditions.
+
+The following are the list of available breeds and their effects for this project:
+
+Breed Name	Effect
+normal	No special effect
+golden	Before the start of every duel, give this dog’s pack leader +4 HP
+corgi	When this dog is knocked out, give this dog’s DP to the next dog in line
+husky	Before this dog duels, it gains +2 DP for every "husky" dog present in both packs (+2 * num of present huskies from both packs)
+
+Several things to note here:
+    Each pack may have more than one dog of the same breed.
+    The enhancement effects (of adding HP and DP) may cause the dogs’ HP and/or DP to go over the original values they had at the start of the battle.
+    c. There is no maximum HP and/or DP a dog can have.
+    The enhancement effects are permanent i.e. last for the entire duration of the battle.
+    Effects from multiple of the same or different breed dogs will stack e.g. 3 golden = +12 HP to their pack leader.
+    Golden (retriever) dogs can receive their own effect if they became the pack leader for the duel.
+    If a corgi dog is the only dog left in the pack and it is knocked out, its effect does nothing. (poor thing!)
+    Husky dogs’ effect will include itself as part of the calculation, e.g. 1 husky against 1 husky, both huskies will receive +4 DP before the duel starts.
+    Husky effect calculation does not include knocked out husky dogs.
+
+
+Write a function sim_enhanced_battle(lpack, rpack) that simulates the battle between lpack and rpack that takes account of any special effects and returns the outcome of the battle.
+
+The return value of this function uses the same form as described in the previous question i.e.:
+
+A single character string: "L" if lpack won, "R" if rpack won, or "T" if tied
+A list of the remaining dogs from the winning pack after the end of the battle. If the battle ended in a tie, then an empty list ([]) is used instead.
+For example, let’s consider this function call: sim_enhanced_battle([("corgi", 6, 5), ("husky", 3, 4)], [("golden", 2, 2), ("golden", 3, 9)]).
+
+First duel: ("corgi", 6, 5) against ("golden", 2, 2). Before the start of this duel, the two goldens in rpack will enhance their current pack leader which is ("golden", 2, 2), with a +8 HP increase. As a result, ("corgi", 6, 5) will actually be fighting against ("golden", 2, 10). After two attacks, the corgi wins the duel with 1 HP remaining.
+
+Second duel: ("corgi", 6, 1) against ("golden", 3, 9). Similar to the previous duel, the golden dog will give and receive a +4 HP bonus before the start of the duel. Thus, we actually have ("corgi", 6, 1) against ("golden", 3, 13). After a single attack, golden wins the duel with 7 HP remaining. Since the corgi is knocked out, its effect is activated and will give its own DP (6 points) to the next dog in line, which is the lone husky dog.
+
+In our final duel: we initially have ("husky", 9, 4) against ("golden", 3, 7). Both husky and golden dogs’ effects are activated before the duel which results in ("husky", 11, 4) against ("golden", 3, 11). After just one exchange of attack, the golden dog is knocked out, leaving ("husky", 11, 1) to be the victor of the duel. Thus, we can finally conclude that the left pack wins the battle as the right pack has no more dogs that can fight, so the output of this function will be ("L", [ ("husky", 11, 1)]).
+
+Like in Q1, you may always assume all inputs are valid and well-formatted.
+
+
+
+
+        %%% Project 1 - Build Your Dream Pack (Part 3) Search & Optimisation %%%
+
+
+Now that battling is up and ready to go, let’s start optimising! Imagine that you are given a list of candidate dogs that
+you may nominate as pack members. You are asked to build the best performing pack against a specific opponent pack by selecting dogs
+from the list and placing them in some position in your pack. Each position in the pack can be occupied by exactly one dog in the candidate list.
+
+Please note: in our version of the game, we don’t allow combining multiple dogs into one, and you cannot place one dog in multiple positions.
+
+In this question, you will use a brute force algorithm to find the best pack assignment. Here, brute force means that you
+need to explicitly consider ALL possible pack configurations in your solution.
+For example, if you have 8 candidate dogs and 5 positions in your pack, then you may have 8 candidates for the leader position,
+then for each choice of the leader you have 7 remaining candidates for the second position, then 6 for the third, and so on,
+which results in as many as  8 x 7 x 6 x 5 x 4 = 6720 configurations in total.
+
+We would like to test each of these configurations to see how each one performs against the opponent's pack.
+In order for us to determine the best performing pack, we need to define a metric.
+In this question, we'll use a score which is defined as the difference between the sum of HP of dogs in our own configuration
+and dogs in opponent's pack after a simulated battle (the higher the score, the better that pack configuration performs).
+
+To determine the outcome of a battle, you, of course, need to know the opponent’s pack.
+In a real game, this would not be possible, but in our project, things are simplified.
+You will be given the list of dogs in the opponent’s pack.
+We'll be using the same battle rules found and explained in the previous question i.e. Simulate Enhanced Battle.
+
+
+Write a function build_dream_pack(candidates, pack_size, opponent_pack) where:
+    candidates is a non-empty list of tuples describing candidate dogs (in arbitrary order)
+    pack_size is the maximum number of dogs in a pack (ranging from 1 to 5)
+    opponent_pack is a list of dog tuples describing your opponent’s pack
+    that considers all permutations of dog candidates, simulate (the enhanced) battle each one against the opponent's pack, and returns the best performing pack.
+
+If there is a tie between the best performing packs (i.e. two or more packs have the maximum score), then you want to sort them out in lexicographical order (compare the first elements from each pack, then compare the second elements, etc.) and pick the smaller (or lesser) pack. For example, if [("golden", 4, 6), ("husky", 1, 2)], [("golden", 4, 6), ("corgi", 1, 2)], [("golden", 4, 6), ("corgi", 1, 5)] all have the same score, then we would want to pick [("golden", 4, 6), ("corgi", 1, 2)] as the first tuples are equal and ("husky", 1, 2) > ("corgi", 1, 5) > ("corgi", 1, 2) when compared lexicographically.
+
+The return value should be in a form of a 2-tuple:
+    A list of dog tuples describing your choice of best performing pack (dream pack).
+    An int score, which is the difference between the sum of HP of dogs in your dream pack and dogs in opponent_pack after a simulated battle
+    Note that the number of candidates may be less than, equal to, or greater than pack size.
+
+
+
+
+        %%% Project 1 - Fast and Greedy Algorithm (Part 4) %%%
+
+
+Write a function build_pack_quick(candidates, pack_size, opponent_pack, pool_size) where:
+    candidates is a non-empty list of tuples describing candidate dogs (their order is reused for the default ordering of a pack as it was described above),
+    pack_size is the maximum number of dogs in a pack when simulating a battle (an int ranging from 1 to 5),
+    opponent_pack is a list of dog tuples describing your opponent’s pack for all battles,
+    pool_size is a maximum count of alternative variants stored and considered during each stage. (a non-zero positive int)
+    that explores the different configurations based on their positions in each stage and returns the best performing pack from the final stage's pool.
+
+Score (as found similarly in the previous question) is the outcome score returned by the (enhanced) battle simulation function
+for a battle between the our pack and opponent_pack (you may want to import your some of your code from the previous question).
+
+The return value of the function should be a tuple of:
+    the best performing pack i.e. the pack with the highest score in the final stage's pool (a list of dog tuples)
+    the score (int)
+
+You can assume that there are no duplicate (identical) dogs in candidates.
+
+You may also assume that all inputs and their formats are always valid and well-formed as described in this slide and in the previous questions.
